@@ -84,15 +84,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="inputs">
   <div class="field">
     <label>Start date</label>
-    <input type="date" id="startDate" min="2027-07-01" max="2027-09-15" value="2027-07-01">
+    <input type="date" id="startDate" min="2027-07-01" max="2027-09-15">
     <div class="date-hint">2027 season: Jul 1 – Sep 15</div>
   </div>
   <div class="field"><label>Entry trailhead</label><select id="entry" onchange="onRouteChange()"></select></div>
   <div class="field"><label>Exit trailhead</label><select id="exit" onchange="onRouteChange()"></select></div>
   <div class="field"><label>Daily pace</label>
     <select id="pace">
+      <option value="" disabled selected>Choose pace...</option>
       <option value="9">9 mi/day</option><option value="10">10 mi/day</option>
-      <option value="11">11 mi/day</option><option value="12" selected>12 mi/day</option>
+      <option value="11">11 mi/day</option><option value="12">12 mi/day</option>
       <option value="13">13 mi/day</option><option value="14">14 mi/day</option>
       <option value="15">15 mi/day</option>
     </select>
@@ -188,10 +189,10 @@ function getJmtMile(s){ return isSOBO()?s.soboMile:s.noboMile; }
 
 function populateSelectors(){
   const sorted=[...TRAILHEADS].sort((a,b)=>a.soboMile-b.soboMile);
-  document.getElementById("entry").innerHTML=sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi to JMT)`:""}</option>`).join("");
-  document.getElementById("exit").innerHTML=sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi exit from JMT)`:""}</option>`).join("");
-  document.getElementById("entry").value="HI";
-  document.getElementById("exit").value="WP";
+  const blankEntry=`<option value="" disabled selected>Choose entry trailhead...</option>`;
+  const blankExit=`<option value="" disabled selected>Choose exit trailhead...</option>`;
+  document.getElementById("entry").innerHTML=blankEntry+sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi to JMT)`:""}</option>`).join("");
+  document.getElementById("exit").innerHTML=blankExit+sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi exit from JMT)`:""}</option>`).join("");
 }
 
 function onRouteChange(){ buildToggles(); render(); }
@@ -253,7 +254,9 @@ function computeBox(boxMiles, pace, onSiteMeals){
 
 function computePlan(){
   const startVal=document.getElementById("startDate").value;
-  const pace=parseInt(document.getElementById("pace").value);
+  const paceVal=document.getElementById("pace").value;
+  if(!paceVal) return null;
+  const pace=parseInt(paceVal);
   const en=getEntry(), ex=getExit();
   const sobo=isSOBO();
   if(!startVal||!en||!ex||en.id===ex.id) return null;
@@ -315,7 +318,7 @@ function render(){
   if(startVal&&(startVal<SEASON_MIN||startVal>SEASON_MAX)){
     el.innerHTML='<div class="season-warn">⚠ Please select a start date within the 2027 season: Jul 1 – Sep 15.</div>'; return;
   }
-  if(!plan){ el.innerHTML='<p style="color:#666;font-size:14px;padding:1rem 0;text-align:center">Select entry/exit trailheads and a start date to see your plan</p>'; return; }
+  if(!plan){ el.innerHTML=''; return; }
   const {en,ex,sobo,endDate,boxes,finalTrailDays,finalComputed,lastReturn,exitTrip,
     finalTrailMiles,totalTrueMiles,totalDays,jmtMilesCovered,serviceFee,warnings,
     finalFromLabel,entryTrip,pace}=plan;
@@ -492,6 +495,9 @@ function generatePDF(){
 document.getElementById("startDate").addEventListener("change", render);
 document.getElementById("pace").addEventListener("change", render);
 document.getElementById("modalOverlay").addEventListener("click",e=>{ if(e.target===document.getElementById("modalOverlay")) closeModal(); });
-populateSelectors(); buildToggles(); render();
+populateSelectors();
+// Start with blank resupply stops section and empty results
+document.getElementById("toggles").innerHTML='<p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p>';
+document.getElementById("results").innerHTML='';
 </script>
 </body></html>
