@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JMT Resupply Planner — One Stop Trail Shop</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,7 +22,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .toggle-box.checked::after { content:''; display:block; width:5px; height:9px; border:2px solid #fff; border-top:none; border-left:none; transform:rotate(40deg) translateY(-1px); }
 .toggle-name { font-size: 14px; color: #111; flex: 1; }
 .toggle-miles { font-size: 12px; color: #666; text-align: right; line-height: 1.5; }
-.toggle-note { font-size: 11px; color: #b45309; margin-top: 4px; padding-left: 28px; }
 .toggle-side { font-size: 11px; color: #2563eb; margin-top: 2px; padding-left: 28px; }
 .either-or { font-size: 11px; background: #fef3c7; color: #b45309; padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
 .meal-toggles { display: flex; gap: 8px; margin-top: 8px; padding-left: 28px; flex-wrap: wrap; align-items: center; }
@@ -33,6 +32,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .vvr-toggle { display: flex; gap: 8px; margin-top: 8px; padding-left: 28px; flex-wrap: wrap; align-items: center; }
 .vvr-btn { font-size: 12px; padding: 3px 10px; border-radius: 6px; border: 1px solid #ddd; background: #f3f4f6; color: #666; cursor: pointer; }
 .vvr-btn.active { background: #185FA5; border-color: #185FA5; color: #fff; }
+.vvr-warn { font-size: 11px; color: #b45309; margin-top: 4px; padding-left: 28px; }
 .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 1rem; }
 .metric { background: #f9fafb; border-radius: 10px; padding: 0.85rem 1rem; }
 .metric-label { font-size: 11px; color: #666; margin-bottom: 4px; }
@@ -55,7 +55,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .box-total-note { font-size: 11px; color: #aaa; margin-top: 3px; }
 .town-meal-note { color: #166534 !important; }
 .cushion-note { color: #2563eb !important; }
-/* Buffer selector row */
 .buffer-row { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-top: 1px solid #f3f4f6; background: #f9fafb; flex-wrap: wrap; }
 .buffer-label { font-size: 12px; color: #666; flex: 1; }
 .buffer-btns { display: flex; gap: 6px; }
@@ -66,7 +65,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .leg-label { font-size: 11px; color: #aaa; white-space: nowrap; }
 .leg-label.warn { color: #b45309; font-weight: 500; }
 .start-banner { background: #f9fafb; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #666; margin-bottom: 1rem; }
-.no-stops { color: #666; font-size: 13px; padding: 0.5rem 0; font-style: italic; }
 .divider { height: 1px; background: #e5e7eb; margin: 1.25rem 0; }
 .endpoint-meals { background: #f9fafb; border-radius: 10px; padding: 10px 14px; margin-bottom: 1rem; }
 .endpoint-meals-title { font-size: 12px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
@@ -91,16 +89,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="field">
     <label>Start date</label>
     <input type="date" id="startDate" min="2027-07-01" max="2027-09-15">
-    <div class="date-hint">2027 season: Jul 1 – Sep 15</div>
+    <div class="date-hint">2027 season: Jul 1 - Sep 15</div>
   </div>
-  <div class="field"><label>Entry trailhead</label><select id="entry" onchange="onRouteChange()"></select></div>
-  <div class="field"><label>Exit trailhead</label><select id="exit" onchange="onRouteChange()"></select></div>
-  <div class="field"><label>Daily pace</label>
+  <div class="field">
+    <label>Entry trailhead</label>
+    <select id="entry">
+      <option value="">Choose entry trailhead...</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Exit trailhead</label>
+    <select id="exit">
+      <option value="">Choose exit trailhead...</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Daily pace</label>
     <select id="pace">
-      <option value="" disabled selected>Choose pace...</option>
-      <option value="9">9 mi/day</option><option value="10">10 mi/day</option>
-      <option value="11">11 mi/day</option><option value="12">12 mi/day</option>
-      <option value="13">13 mi/day</option><option value="14">14 mi/day</option>
+      <option value="">Choose pace...</option>
+      <option value="9">9 mi/day</option>
+      <option value="10">10 mi/day</option>
+      <option value="11">11 mi/day</option>
+      <option value="12">12 mi/day</option>
+      <option value="13">13 mi/day</option>
+      <option value="14">14 mi/day</option>
       <option value="15">15 mi/day</option>
     </select>
   </div>
@@ -120,7 +132,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <div class="divider"></div>
 <div class="section-header">Resupply stops</div>
-<div class="stop-toggles" id="toggles"></div>
+<div id="toggles"><p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p></div>
 <div class="divider"></div>
 <div id="results"></div>
 
@@ -129,42 +141,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────
-const CK_FORM_ID    = "YOUR_CK_FORM_ID_HERE";
-const CK_API_KEY    = "YOUR_CK_API_KEY_HERE";
-const FORMSPREE_URL = "YOUR_FORMSPREE_URL_HERE";
+var CK_FORM_ID    = "YOUR_CK_FORM_ID_HERE";
+var CK_API_KEY    = "YOUR_CK_API_KEY_HERE";
+var FORMSPREE_URL = "YOUR_FORMSPREE_URL_HERE";
 
-const SEASON_MIN = "2027-07-01";
-const SEASON_MAX = "2027-09-15";
-const JMT_LENGTH     = 210.5;
-const MAX_TRAIL_DAYS = 7;
+var SEASON_MIN = "2027-07-01";
+var SEASON_MAX = "2027-09-15";
+var MAX_TRAIL_DAYS = 7;
 
-// ── MEAL ROUNDING ─────────────────────────────────────────────────────────
-// Fractional day rules:
-//   0.0–0.2  → 0 extra meals (round down)
-//   0.3–0.4  → +1 meal
-//   0.5–0.7  → +2 meals (half day)
-//   0.8–0.9  → +3 meals (full extra day)
-function mealsForMiles(miles, pace) {
-  if(miles <= 0) return 0;
-  const exact = miles / pace;
-  const whole = Math.floor(exact);
-  const frac  = exact - whole;
-  let extra = 0;
-  if     (frac >= 0.8) extra = 3;
-  else if(frac >= 0.5) extra = 2;
-  else if(frac >= 0.3) extra = 1;
-  return whole * 3 + extra;
-}
-
-// Default buffer: 1 if base 0–10 meals, 2 if base 11–21
-function defaultBuffer(baseMeals) {
-  if(baseMeals <= 10) return 1;
-  return 2;
-}
-
-// ── RAW DATA ──────────────────────────────────────────────────────────────
-const TRAILHEADS = [
+var TRAILHEADS = [
   { id:"HI",   name:"Happy Isles / Yosemite Valley", soboMile:0,     noboMile:210.5, sideTrip:0    },
   { id:"LC",   name:"Lyell Canyon",                  soboMile:24,    noboMile:187,   sideTrip:0.5  },
   { id:"NDVP", name:"JMT N of Devils Postpile",      soboMile:61,    noboMile:150,   sideTrip:0.5  },
@@ -182,478 +167,566 @@ const TRAILHEADS = [
   { id:"MP",   name:"Mono Pass",                     soboMile:88.1,  noboMile:122.4, sideTrip:14.6 },
   { id:"PP",   name:"Piute Pass",                    soboMile:110,   noboMile:101,   sideTrip:15.6 },
   { id:"WP",   name:"Whitney Portal",                soboMile:210.5, noboMile:0,     sideTrip:11   },
-  { id:"CL",   name:"Cottonwood Lakes",              soboMile:210.5, noboMile:0,     sideTrip:20   },
+  { id:"CL",   name:"Cottonwood Lakes",              soboMile:210.5, noboMile:0,     sideTrip:20   }
 ];
 
-const RESUPPLY = [
-  { id:"TM",  name:"Tuolumne Meadows",               soboMile:23,  noboMile:187, sideTrip:0,    hasMeals:true,  mtrLocked:false, eitherOr:null,     note:"Grill & market on-site" },
-  { id:"RM",  name:"Reds Meadow",                    soboMile:61,  noboMile:150, sideTrip:0,    hasMeals:true,  mtrLocked:false, eitherOr:null,     note:"Resupply reservation required — book online" },
-  { id:"VVR", name:"Vermilion Valley Resort",        soboMile:88,  noboMile:122, sideTrip:null, hasMeals:true,  mtrLocked:false, eitherOr:"VVR/MTR",note:null, vvrFerry:1, vvrHike:4.5 },
-  { id:"MTR", name:"Muir Trail Ranch",               soboMile:106, noboMile:104, sideTrip:0,    hasMeals:false, mtrLocked:true,  eitherOr:"VVR/MTR",note:"Bucket system — reserve months in advance" },
-  { id:"PR",  name:"Parcher's Resort",               soboMile:136, noboMile:74,  sideTrip:11.8, hasMeals:true,  mtrLocked:false, eitherOr:"PR/KS",  note:"11.8mi each way via Bishop Pass" },
-  { id:"KS",  name:"Kearsarge / MWM / Independence", soboMile:180, noboMile:30,  sideTrip:6.6,  hasMeals:true,  mtrLocked:false, eitherOr:"PR/KS",  note:"6.6mi each way over Kearsarge Pass" },
+var RESUPPLY = [
+  { id:"TM",  name:"Tuolumne Meadows",               soboMile:23,  noboMile:187, sideTrip:0,    hasMeals:true,  mtrLocked:false, eitherOr:null      },
+  { id:"RM",  name:"Reds Meadow",                    soboMile:61,  noboMile:150, sideTrip:0,    hasMeals:true,  mtrLocked:false, eitherOr:null      },
+  { id:"VVR", name:"Vermilion Valley Resort",        soboMile:88,  noboMile:122, sideTrip:4.5,  hasMeals:true,  mtrLocked:false, eitherOr:"VVR/MTR", vvrFerry:1, vvrHike:4.5 },
+  { id:"MTR", name:"Muir Trail Ranch",               soboMile:106, noboMile:104, sideTrip:0,    hasMeals:false, mtrLocked:true,  eitherOr:"VVR/MTR" },
+  { id:"PR",  name:"Parchers Resort",                soboMile:136, noboMile:74,  sideTrip:11.8, hasMeals:true,  mtrLocked:false, eitherOr:"PR/KS"   },
+  { id:"KS",  name:"Kearsarge / MWM / Independence", soboMile:180, noboMile:30,  sideTrip:6.6,  hasMeals:true,  mtrLocked:false, eitherOr:"PR/KS"   }
 ];
 
-let vvrMode = "hike";
-const stopEnabled = { TM:true, RM:true, VVR:false, MTR:true, PR:false, KS:true };
-const mealInBox   = { TM:{d:true,b:true}, RM:{d:true,b:true}, VVR:{d:true,b:true}, MTR:{d:true,b:true}, PR:{d:true,b:true}, KS:{d:true,b:true} };
-const endpointMeals = { entryBreakfast:false, exitDinner:false };
+var vvrMode = "hike";
+var stopEnabled = { TM:true, RM:true, VVR:false, MTR:true, PR:false, KS:true };
+var mealInBox   = { TM:{d:true,b:true}, RM:{d:true,b:true}, VVR:{d:true,b:true}, MTR:{d:true,b:true}, PR:{d:true,b:true}, KS:{d:true,b:true} };
+var endpointMeals = { entryBreakfast:false, exitDinner:false };
+var boxBuffers = {};
+var currentPlan = null;
 
-// Per-box buffer values — keyed by box index string ("0","1",... and "final")
-// Populated dynamically when plan is computed
-const boxBuffers = {};
+function addDays(d,n) {
+  var x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
 
-let currentPlan = null;
+function fmtDate(d) {
+  return d.toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"});
+}
 
-function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-function fmt(d){ return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
-function getSideTrip(s){
-  if(s.id==="VVR") return vvrMode==="ferry" ? s.vvrFerry : s.vvrHike;
+function getSideTrip(s) {
+  if (s.id === "VVR") return vvrMode === "ferry" ? s.vvrFerry : s.vvrHike;
   return s.sideTrip || 0;
 }
-function getEntry(){ const v=document.getElementById("entry").value; return v?TRAILHEADS.find(t=>t.id===v):null; }
-function getExit(){  const v=document.getElementById("exit").value;  return v?TRAILHEADS.find(t=>t.id===v):null; }
-function isSOBO(){
-  const en=getEntry(),ex=getExit();
-  if(!en||!ex) return true;
-  return en.soboMile<=ex.soboMile;
-}
-function getJmtMile(s){ return isSOBO()?s.soboMile:s.noboMile; }
 
-function populateSelectors(){
-  const sorted=[...TRAILHEADS].sort((a,b)=>a.soboMile-b.soboMile);
-  const blankEntry=`<option value="" disabled selected>Choose entry trailhead...</option>`;
-  const blankExit=`<option value="" disabled selected>Choose exit trailhead...</option>`;
-  document.getElementById("entry").innerHTML=blankEntry+sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi to JMT)`:""}</option>`).join("");
-  document.getElementById("exit").innerHTML=blankExit+sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi exit from JMT)`:""}</option>`).join("");
+function getEntryVal() { return document.getElementById("entry").value; }
+function getExitVal()  { return document.getElementById("exit").value; }
+
+function getEntry() {
+  var v = getEntryVal();
+  if (!v) return null;
+  for (var i = 0; i < TRAILHEADS.length; i++) {
+    if (TRAILHEADS[i].id === v) return TRAILHEADS[i];
+  }
+  return null;
 }
 
-function onRouteChange(){
-  try { buildToggles(); } catch(e){ console.error("buildToggles error:",e); }
-  try { render(); } catch(e){ console.error("render error:",e); }
+function getExit() {
+  var v = getExitVal();
+  if (!v) return null;
+  for (var i = 0; i < TRAILHEADS.length; i++) {
+    if (TRAILHEADS[i].id === v) return TRAILHEADS[i];
+  }
+  return null;
 }
 
-function toggleEndpointMeal(key){
-  endpointMeals[key]=!endpointMeals[key];
-  document.getElementById(key==="entryBreakfast"?"entryBreakfastBtn":"exitDinnerBtn").classList.toggle("meal-on",endpointMeals[key]);
-  render();
+function isSOBO() {
+  var en = getEntry(), ex = getExit();
+  if (!en || !ex) return true;
+  return en.soboMile <= ex.soboMile;
 }
 
-function getActiveStops(){
-  const en=getEntry(),ex=getExit();
-  if(!en||!ex||en.id===ex.id) return [];
-  const sobo=isSOBO();
-  const enMile=sobo?en.soboMile:en.noboMile;
-  const exMile=sobo?ex.soboMile:ex.noboMile;
-  const lo=Math.min(enMile,exMile);
-  const hi=Math.max(enMile,exMile);
-  return RESUPPLY
-    .filter(s=>{ const m=sobo?s.soboMile:s.noboMile; return m>lo&&m<hi; })
-    .sort((a,b)=>sobo?a.soboMile-b.soboMile:a.noboMile-b.noboMile);
+function getJmtMile(s) {
+  return isSOBO() ? s.soboMile : s.noboMile;
 }
 
-function buildToggles(){
-  const active=getActiveStops();
-  const el=document.getElementById("toggles");
-  if(!active.length){
-    el.innerHTML='<p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p>';
+function mealsForMiles(miles, pace) {
+  if (miles <= 0) return 0;
+  var exact = miles / pace;
+  var whole = Math.floor(exact);
+  var frac  = exact - whole;
+  var extra = 0;
+  if      (frac >= 0.8) extra = 3;
+  else if (frac >= 0.5) extra = 2;
+  else if (frac >= 0.3) extra = 1;
+  return whole * 3 + extra;
+}
+
+function defaultBuffer(base) {
+  return base <= 10 ? 1 : 2;
+}
+
+function populateSelectors() {
+  var sorted = TRAILHEADS.slice().sort(function(a,b){ return a.soboMile - b.soboMile; });
+  var entryEl = document.getElementById("entry");
+  var exitEl  = document.getElementById("exit");
+  entryEl.innerHTML = '<option value="">Choose entry trailhead...</option>';
+  exitEl.innerHTML  = '<option value="">Choose exit trailhead...</option>';
+  for (var i = 0; i < sorted.length; i++) {
+    var t = sorted[i];
+    var label = t.name + (t.sideTrip > 0 ? " (+" + t.sideTrip + "mi to JMT)" : "");
+    var exitLabel = t.name + (t.sideTrip > 0 ? " (+" + t.sideTrip + "mi exit from JMT)" : "");
+    entryEl.innerHTML += '<option value="' + t.id + '">' + label + '</option>';
+    exitEl.innerHTML  += '<option value="' + t.id + '">' + exitLabel + '</option>';
+  }
+}
+
+function getActiveStops() {
+  var en = getEntry(), ex = getExit();
+  if (!en || !ex || en.id === ex.id) return [];
+  var sobo = isSOBO();
+  var enMile = sobo ? en.soboMile : en.noboMile;
+  var exMile = sobo ? ex.soboMile : ex.noboMile;
+  var lo = Math.min(enMile, exMile);
+  var hi = Math.max(enMile, exMile);
+  var result = [];
+  for (var i = 0; i < RESUPPLY.length; i++) {
+    var s = RESUPPLY[i];
+    var m = sobo ? s.soboMile : s.noboMile;
+    if (m > lo && m < hi) result.push(s);
+  }
+  result.sort(function(a,b){ return sobo ? a.soboMile-b.soboMile : a.noboMile-b.noboMile; });
+  return result;
+}
+
+function buildToggles() {
+  var active = getActiveStops();
+  var el = document.getElementById("toggles");
+  if (!active.length) {
+    el.innerHTML = '<p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p>';
     return;
   }
-  el.innerHTML=active.map(s=>{
-    const on=stopEnabled[s.id], st=getSideTrip(s), jmt=getJmtMile(s);
-    return `<div class="toggle-row${!on?" disabled-stop":""}">
-      <div class="toggle-top" onclick="toggleStop('${s.id}')">
-        <div class="toggle-box${on?" checked":""}"></div>
-        <div class="toggle-name">${s.name}${s.eitherOr?` <span class="either-or">${s.eitherOr}</span>`:""}</div>
-        <div class="toggle-miles">JMT mi ${jmt}${st>0?`<br><span style="color:#2563eb;font-size:11px">+${st}mi side trip</span>`:""}</div>
-      </div>
-      ${on&&s.id==="VVR"?`<div class="vvr-toggle">
-        <span class="meal-label">Getting there:</span>
-        <div class="vvr-btn${vvrMode==="ferry"?" active":""}" onclick="setVvr('ferry')">Ferry (1mi) — TBD</div>
-        <div class="vvr-btn${vvrMode==="hike"?" active":""}" onclick="setVvr('hike')">Hike (4.5mi)</div>
-      </div><div class="toggle-note">⚠ Ferry status unconfirmed — verify before relying on it</div>`:""}
-      ${on&&st>0?`<div class="toggle-side">↕ Outbound: previous box · Return: this box</div>`:""}
-      ${on&&s.hasMeals?`<div class="meal-toggles">
-        <span class="meal-label">Buy on-site instead:</span>
-        <div class="meal-btn${!mealInBox[s.id].d?" meal-on":""}${s.mtrLocked?" meal-locked":""}" onclick="${s.mtrLocked?"":"toggleMeal('"+s.id+"','d')"}">Dinner</div>
-        <div class="meal-btn${!mealInBox[s.id].b?" meal-on":""}${s.mtrLocked?" meal-locked":""}" onclick="${s.mtrLocked?"":"toggleMeal('"+s.id+"','b')"}">Breakfast</div>
-      </div>`:""}
-    </div>`;
-  }).join("");
+  var html = "";
+  for (var i = 0; i < active.length; i++) {
+    var s   = active[i];
+    var on  = stopEnabled[s.id];
+    var st  = getSideTrip(s);
+    var jmt = getJmtMile(s);
+    html += '<div class="toggle-row' + (!on ? " disabled-stop" : "") + '">';
+    html += '<div class="toggle-top" onclick="toggleStop(\'' + s.id + '\')">';
+    html += '<div class="toggle-box' + (on ? " checked" : "") + '"></div>';
+    html += '<div class="toggle-name">' + s.name + (s.eitherOr ? ' <span class="either-or">' + s.eitherOr + '</span>' : '') + '</div>';
+    html += '<div class="toggle-miles">JMT mi ' + jmt + (st > 0 ? '<br><span style="color:#2563eb;font-size:11px">+' + st + 'mi side trip</span>' : '') + '</div>';
+    html += '</div>';
+    if (on && s.id === "VVR") {
+      html += '<div class="vvr-toggle">';
+      html += '<span class="meal-label">Getting there:</span>';
+      html += '<div class="vvr-btn' + (vvrMode==="ferry" ? " active" : "") + '" onclick="setVvr(\'ferry\')">Ferry (1mi) - TBD</div>';
+      html += '<div class="vvr-btn' + (vvrMode==="hike"  ? " active" : "") + '" onclick="setVvr(\'hike\')">Hike (4.5mi)</div>';
+      html += '</div>';
+      html += '<div class="vvr-warn">Ferry status unconfirmed - verify before relying on it</div>';
+    }
+    if (on && st > 0) {
+      html += '<div class="toggle-side">Outbound miles: previous box - Return miles: this box</div>';
+    }
+    if (on && s.hasMeals) {
+      html += '<div class="meal-toggles"><span class="meal-label">Buy on-site instead:</span>';
+      html += '<div class="meal-btn' + (!mealInBox[s.id].d ? " meal-on" : "") + (s.mtrLocked ? " meal-locked" : "") + '" onclick="' + (s.mtrLocked ? "" : "toggleMeal('" + s.id + "','d')") + '">Dinner</div>';
+      html += '<div class="meal-btn' + (!mealInBox[s.id].b ? " meal-on" : "") + (s.mtrLocked ? " meal-locked" : "") + '" onclick="' + (s.mtrLocked ? "" : "toggleMeal('" + s.id + "','b')") + '">Breakfast</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  el.innerHTML = html;
 }
 
-function toggleStop(id){ stopEnabled[id]=!stopEnabled[id]; buildToggles(); render(); }
-function toggleMeal(id,m){ mealInBox[id][m]=!mealInBox[id][m]; buildToggles(); render(); }
-function setVvr(mode){ vvrMode=mode; buildToggles(); render(); }
+function toggleStop(id) { stopEnabled[id] = !stopEnabled[id]; buildToggles(); render(); }
+function toggleMeal(id, m) { mealInBox[id][m] = !mealInBox[id][m]; buildToggles(); render(); }
+function setVvr(mode) { vvrMode = mode; buildToggles(); render(); }
+function setBuffer(key, val) { boxBuffers[key] = val; render(); }
 
-function setBuffer(key, val){
-  boxBuffers[key]=val;
+function toggleEndpointMeal(key) {
+  endpointMeals[key] = !endpointMeals[key];
+  var btnId = key === "entryBreakfast" ? "entryBreakfastBtn" : "exitDinnerBtn";
+  var btn = document.getElementById(btnId);
+  if (endpointMeals[key]) btn.classList.add("meal-on");
+  else btn.classList.remove("meal-on");
   render();
 }
 
-function computePlan(){
-  const startVal=document.getElementById("startDate").value;
-  const paceVal=document.getElementById("pace").value;
-  if(!paceVal) return null;
-  const pace=parseInt(paceVal);
-  const en=getEntry(), ex=getExit();
-  const sobo=isSOBO();
-  if(!startVal||!en||!ex||en.id===ex.id) return null;
-  if(startVal < SEASON_MIN || startVal > SEASON_MAX) return null;
+function onRouteChange() { buildToggles(); render(); }
 
-  const startDate=new Date(startVal+"T12:00:00");
-  const entryJmt=sobo?en.soboMile:en.noboMile;
-  const exitJmt=sobo?ex.soboMile:ex.noboMile;
-  const entryTrip=en.sideTrip, exitTrip=ex.sideTrip;
-  const stops=getActiveStops().filter(s=>stopEnabled[s.id]);
+function computePlan() {
+  var startVal = document.getElementById("startDate").value;
+  var paceVal  = document.getElementById("pace").value;
+  var en = getEntry(), ex = getExit();
+  if (!startVal || !paceVal || !en || !ex || en.id === ex.id) return null;
+  if (startVal < SEASON_MIN || startVal > SEASON_MAX) return null;
 
-  let prevJmtMile=entryJmt, cumMiles=entryTrip;
-  const boxes=[];
+  var pace      = parseInt(paceVal);
+  var sobo      = isSOBO();
+  var startDate = new Date(startVal + "T12:00:00");
+  var entryJmt  = sobo ? en.soboMile : en.noboMile;
+  var exitJmt   = sobo ? ex.soboMile : ex.noboMile;
+  var entryTrip = en.sideTrip;
+  var exitTrip  = ex.sideTrip;
+  var stops     = getActiveStops().filter(function(s){ return stopEnabled[s.id]; });
 
-  // prevBreakfastBoughtOnSite: tracks whether the PREVIOUS stop's breakfast
-  // was bought on-site — if so, deduct it from THIS (outgoing) box
-  let prevBreakfastBoughtOnSite=false;
+  var prevJmtMile = entryJmt;
+  var cumMiles    = entryTrip;
+  var boxes       = [];
+  var prevBreakfastBoughtOnSite = false;
 
-  stops.forEach((s,i)=>{
-    const jmtMile=getJmtMile(s);
-    const trailMiles=Math.abs(jmtMile-prevJmtMile);
-    const st=getSideTrip(s);
-    const prevReturn=i>0?getSideTrip(stops[i-1]):0;
-    const trailDays=Math.ceil(trailMiles/pace);
-    const boxMiles=prevReturn+trailMiles+st;
-    cumMiles+=prevReturn+trailMiles+st;
-    const arrivalDay=Math.ceil(cumMiles/pace);
+  for (var i = 0; i < stops.length; i++) {
+    var s          = stops[i];
+    var jmtMile    = getJmtMile(s);
+    var trailMiles = Math.abs(jmtMile - prevJmtMile);
+    var st         = getSideTrip(s);
+    var prevReturn = i > 0 ? getSideTrip(stops[i-1]) : 0;
+    var trailDays  = Math.ceil(trailMiles / pace);
+    var boxMiles   = prevReturn + trailMiles + st;
+    cumMiles      += prevReturn + trailMiles + st;
+    var arrivalDay = Math.ceil(cumMiles / pace);
 
-    // Base meals using fractional rounding
-    let baseMeals=mealsForMiles(boxMiles, pace);
+    var baseMeals = mealsForMiles(boxMiles, pace);
+    var onSite = 0;
+    if (i === 0 && endpointMeals.entryBreakfast) onSite++;
+    if (!mealInBox[s.id].d) onSite++;
+    if (prevBreakfastBoughtOnSite) onSite++;
+    baseMeals = Math.max(0, baseMeals - onSite);
 
-    // Meal subtractions for THIS box:
-    // - Entry trailhead breakfast (first box only, already an outgoing deduction)
-    // - Dinner bought on-site at THIS stop (eaten night of arrival = incoming box)
-    // - Breakfast bought on-site at PREVIOUS stop (eaten morning of departure = this outgoing box)
-    let onSite=0;
-    if(i===0&&endpointMeals.entryBreakfast) onSite++;  // start trailhead breakfast: deduct from box 1
-    if(!mealInBox[s.id].d) onSite++;                   // dinner at THIS stop: incoming
-    if(prevBreakfastBoughtOnSite) onSite++;             // breakfast at PREVIOUS stop: outgoing (this box)
-    baseMeals=Math.max(0, baseMeals-onSite);
+    var bufKey = String(i);
+    if (boxBuffers[bufKey] === undefined) boxBuffers[bufKey] = defaultBuffer(baseMeals);
+    var buffer     = boxBuffers[bufKey];
+    var totalMeals = baseMeals + buffer;
 
-    // Buffer
-    const bufKey=String(i);
-    if(boxBuffers[bufKey]===undefined) boxBuffers[bufKey]=defaultBuffer(baseMeals);
-    const buffer=boxBuffers[bufKey];
-    const totalMeals=baseMeals+buffer;
+    boxes.push({
+      s: s, jmtMile: jmtMile, trailMiles: trailMiles, trailDays: trailDays,
+      st: st, prevReturn: prevReturn, boxMiles: boxMiles,
+      baseMeals: baseMeals, buffer: buffer, totalMeals: totalMeals,
+      arrivalDay: arrivalDay, arrivalDate: addDays(startDate, arrivalDay - 1),
+      dinnerIn: mealInBox[s.id].d,
+      breakfastBoughtOnSite: !mealInBox[s.id].b,
+      prevBreakfastBoughtOnSite: prevBreakfastBoughtOnSite,
+      entryBreakfastDeducted: i === 0 && endpointMeals.entryBreakfast,
+      fromLabel: i === 0 ? en.id : stops[i-1].id,
+      fromName:  i === 0 ? en.name : stops[i-1].name,
+      isFirst: i === 0, bufKey: bufKey
+    });
 
-    boxes.push({ s,jmtMile,trailMiles,trailDays,st,prevReturn,boxMiles,
-      baseMeals,buffer,totalMeals,
-      arrivalDay,arrivalDate:addDays(startDate,arrivalDay-1),
-      dinnerIn:mealInBox[s.id].d,
-      breakfastBoughtOnSite:!mealInBox[s.id].b, // breakfast at THIS stop — deducted from NEXT box
-      prevBreakfastBoughtOnSite,                 // breakfast from previous stop — deducted from THIS box
-      entryBreakfastDeducted:i===0&&endpointMeals.entryBreakfast,
-      fromLabel:i===0?en.id:stops[i-1].id,
-      fromName:i===0?en.name:stops[i-1].name,isFirst:i===0,
-      bufKey });
-
-    // Pass this stop's breakfast choice forward to the next box
     prevBreakfastBoughtOnSite = !mealInBox[s.id].b;
-    prevJmtMile=jmtMile;
-  });
-
-  // Final carry
-  const lastReturn=stops.length?getSideTrip(stops[stops.length-1]):0;
-  const finalTrailMiles=Math.abs(exitJmt-prevJmtMile);
-  const finalBoxMiles=lastReturn+finalTrailMiles+exitTrip;
-  const finalTrailDays=Math.ceil((finalTrailMiles+exitTrip)/pace);
-  cumMiles+=lastReturn+finalTrailMiles+exitTrip;
-
-  let finalBase=mealsForMiles(finalBoxMiles, pace);
-  // Final carry deductions:
-  // - Last stop's breakfast bought on-site → deduct from final carry (outgoing)
-  // - Exit dinner bought on-site → deduct from final carry (incoming)
-  if(prevBreakfastBoughtOnSite) finalBase=Math.max(0,finalBase-1);
-  if(endpointMeals.exitDinner) finalBase=Math.max(0,finalBase-1);
-  if(boxBuffers["final"]===undefined) boxBuffers["final"]=defaultBuffer(finalBase);
-  const finalBuffer=boxBuffers["final"];
-  const finalTotal=finalBase+finalBuffer;
-
-  const totalTrueMiles=Math.round(cumMiles*10)/10;
-  const totalDays=Math.ceil(totalTrueMiles/pace);
-  const endDate=addDays(startDate,totalDays);
-  const jmtMilesCovered=Math.abs(exitJmt-entryJmt);
-  const serviceFee=totalDays*25;
-
-  const warnings=[];
-  boxes.forEach(b=>{ if(b.trailDays>MAX_TRAIL_DAYS) warnings.push(`${b.fromName} → ${b.s.name}: ${b.trailDays} trail days (${b.trailMiles}mi) — consider adding a stop.`); });
-  if(finalTrailDays>MAX_TRAIL_DAYS) warnings.push(`${stops.length?stops[stops.length-1].name:en.name} → ${ex.name}: ${finalTrailDays} days — may be a heavy carry.`);
-
-  return { en,ex,sobo,startDate,endDate,pace,boxes,stops,
-    finalTrailMiles,finalTrailDays,finalBoxMiles,finalBase,finalBuffer,finalTotal,
-    lastReturn,exitTrip,entryTrip,totalTrueMiles,totalDays,
-    jmtMilesCovered,serviceFee,warnings,prevBreakfastBoughtOnSite,
-    finalFromLabel:stops.length?stops[stops.length-1].id:en.id,
-    finalFromName:stops.length?stops[stops.length-1].name:en.name };
-}
-
-function bufferBtnsHTML(key, current){
-  return [0,1,2,3].map(v=>
-    `<div class="buf-btn${current===v?" active":""}" onclick="setBuffer('${key}',${v})">${v}</div>`
-  ).join("");
-}
-
-function render(){
-  const plan=computePlan(); currentPlan=plan;
-  const el=document.getElementById("results");
-  const startVal=document.getElementById("startDate").value;
-
-  if(startVal&&(startVal<SEASON_MIN||startVal>SEASON_MAX)){
-    el.innerHTML='<div class="season-warn">⚠ Please select a start date within the 2027 season: Jul 1 – Sep 15.</div>'; return;
+    prevJmtMile = jmtMile;
   }
-  if(!plan){ el.innerHTML=''; return; }
 
-  const {en,ex,sobo,endDate,boxes,finalTrailDays,finalBase,finalBuffer,finalTotal,
-    lastReturn,exitTrip,finalTrailMiles,totalTrueMiles,totalDays,jmtMilesCovered,
-    serviceFee,warnings,finalFromLabel,entryTrip,pace}=plan;
+  var lastReturn      = stops.length ? getSideTrip(stops[stops.length-1]) : 0;
+  var finalTrailMiles = Math.abs(exitJmt - prevJmtMile);
+  var finalBoxMiles   = lastReturn + finalTrailMiles + exitTrip;
+  var finalTrailDays  = Math.ceil((finalTrailMiles + exitTrip) / pace);
+  cumMiles           += lastReturn + finalTrailMiles + exitTrip;
 
-  let html="";
-  html+=`<div class="start-banner"><strong>${sobo?"SOBO":"NOBO"}</strong>: ${en.name} → ${ex.name} · ${jmtMilesCovered} JMT miles · ${totalTrueMiles} true miles</div>`;
-  html+=`<div class="summary">
-    <div class="metric"><div class="metric-label">JMT miles</div><div class="metric-value">${jmtMilesCovered}</div><div class="metric-sub">trail only</div></div>
-    <div class="metric"><div class="metric-label">True miles</div><div class="metric-value">${totalTrueMiles}</div><div class="metric-sub">all segments</div></div>
-    <div class="metric"><div class="metric-label">Trip length</div><div class="metric-value">${totalDays} days</div></div>
-    <div class="metric"><div class="metric-label">Finish date</div><div class="metric-value">${fmt(endDate)}</div></div>
-    <div class="metric"><div class="metric-label">Service fee</div><div class="metric-value">$${serviceFee.toLocaleString()}</div></div>
-  </div>`;
+  var finalBase = mealsForMiles(finalBoxMiles, pace);
+  if (prevBreakfastBoughtOnSite) finalBase = Math.max(0, finalBase - 1);
+  if (endpointMeals.exitDinner)  finalBase = Math.max(0, finalBase - 1);
+  if (boxBuffers["final"] === undefined) boxBuffers["final"] = defaultBuffer(finalBase);
+  var finalBuffer = boxBuffers["final"];
+  var finalTotal  = finalBase + finalBuffer;
 
-  warnings.forEach(w=>{ html+=`<div class="warn-banner">⚠ ${w}</div>`; });
-  if(entryTrip>0) html+=`<div class="leg-divider"><div class="leg-line"></div><div class="leg-label">Trailhead → JMT: ${entryTrip}mi · included in Box 1</div><div class="leg-line"></div></div>`;
+  var totalTrueMiles  = Math.round(cumMiles * 10) / 10;
+  var totalDays       = Math.ceil(totalTrueMiles / pace);
+  var endDate         = addDays(startDate, totalDays);
+  var jmtMilesCovered = Math.abs(exitJmt - entryJmt);
+  var serviceFee      = totalDays * 25;
 
-  boxes.forEach((b,i)=>{
-    const warn=b.trailDays>MAX_TRAIL_DAYS;
-    html+=`<div class="leg-divider"><div class="leg-line"></div><div class="leg-label${warn?" warn":""}">${b.fromLabel} → ${b.s.id}: ${b.trailDays} trail days · ${b.trailMiles}mi${warn?" ⚠":""}</div><div class="leg-line"></div></div>`;
-    html+=`<div class="box-card${warn?" warn-card":""}">
-      <div class="box-header${warn?" warn-header":""}">
-        <div><div class="box-title">Box ${i+1}: ${b.s.name}</div><div style="font-size:12px;color:#666;margin-top:2px">Arrive Day ${b.arrivalDay} · ${fmt(b.arrivalDate)}</div></div>
-      </div>
-      <div class="box-body">
-        ${b.isFirst&&entryTrip>0?`<div class="box-row"><span>Entry: ${en.name} → JMT (${entryTrip}mi)</span><span>${Math.ceil(entryTrip/pace)} day${Math.ceil(entryTrip/pace)>1?"s":""}</span></div>`:""}
-        ${b.prevReturn>0?`<div class="box-row"><span>↩ Return from previous side trip (${b.prevReturn}mi)</span><span>${Math.ceil(b.prevReturn/pace)} day${Math.ceil(b.prevReturn/pace)>1?"s":""}</span></div>`:""}
-        <div class="box-row"><span>Trail: ${b.fromLabel} → ${b.s.id} (${b.trailMiles}mi)</span><span>${b.trailDays} day${b.trailDays>1?"s":""}</span></div>
-        ${b.st>0?`<div class="box-row"><span>↗ Outbound to ${b.s.name} (${b.st}mi)</span><span>${Math.ceil(b.st/pace)} day${Math.ceil(b.st/pace)>1?"s":""}</span></div>`:""}
-        ${b.entryBreakfastDeducted?`<div class="box-row"><span>Breakfast at entry trailhead</span><span class="town-meal-note">−1 meal</span></div>`:""}
-        ${!b.dinnerIn?`<div class="box-row"><span>Dinner at ${b.s.name} — purchased on-site</span><span class="town-meal-note">−1 meal</span></div>`:""}
-        ${b.prevBreakfastBoughtOnSite?`<div class="box-row"><span>Breakfast at ${b.fromName} — purchased on-site</span><span class="town-meal-note">−1 meal</span></div>`:""}
-      </div>
-      <div class="buffer-row">
-        <span class="buffer-label">Trail buffer: <strong class="cushion-note">+${b.buffer} meal${b.buffer!==1?"s":""}</strong></span>
-        <div class="buffer-btns">${bufferBtnsHTML(b.bufKey, b.buffer)}</div>
-      </div>
-      <div class="box-total">
-        <div class="box-total-main"><span>${b.totalMeals} meals total</span><span>${b.boxMiles}mi</span></div>
-        <div class="box-total-note">${b.baseMeals} calculated + ${b.buffer} buffer</div>
-      </div>
-    </div>`;
-  });
+  var warnings = [];
+  for (var j = 0; j < boxes.length; j++) {
+    if (boxes[j].trailDays > MAX_TRAIL_DAYS) {
+      warnings.push(boxes[j].fromName + " to " + boxes[j].s.name + ": " + boxes[j].trailDays + " trail days (" + boxes[j].trailMiles + "mi) - consider adding a stop.");
+    }
+  }
+  if (finalTrailDays > MAX_TRAIL_DAYS) {
+    var fn = stops.length ? stops[stops.length-1].name : en.name;
+    warnings.push(fn + " to " + ex.name + ": " + finalTrailDays + " days - may be a heavy carry.");
+  }
 
-  const finalWarn=finalTrailDays>MAX_TRAIL_DAYS;
-  html+=`<div class="leg-divider"><div class="leg-line"></div><div class="leg-label${finalWarn?" warn":""}">${finalFromLabel} → ${ex.id}: ${finalTrailDays} days · ${Math.round((finalTrailMiles+exitTrip)*10)/10}mi${finalWarn?" ⚠":""}</div><div class="leg-line"></div></div>`;
-  html+=`<div class="box-card${finalWarn?" warn-card":""}">
-    <div class="box-header${finalWarn?" warn-header":""}">
-      <div><div class="box-title">Final carry to ${ex.name}</div><div style="font-size:12px;color:#666;margin-top:2px">${fmt(endDate)}</div></div>
-    </div>
-    <div class="box-body">
-      ${lastReturn>0?`<div class="box-row"><span>↩ Return from previous side trip (${lastReturn}mi)</span><span>${Math.ceil(lastReturn/pace)} day${Math.ceil(lastReturn/pace)>1?"s":""}</span></div>`:""}
-      ${finalTrailMiles>0?`<div class="box-row"><span>Trail to JMT exit junction (${finalTrailMiles}mi)</span><span>${Math.ceil(finalTrailMiles/pace)} day${Math.ceil(finalTrailMiles/pace)>1?"s":""}</span></div>`:""}
-      ${exitTrip>0?`<div class="box-row"><span>Exit: JMT → ${ex.name} (${exitTrip}mi)</span><span>${Math.ceil(exitTrip/pace)} day${Math.ceil(exitTrip/pace)>1?"s":""}</span></div>`:""}
-      ${plan.prevBreakfastBoughtOnSite?`<div class="box-row"><span>Breakfast at ${plan.finalFromName} — purchased on-site</span><span class="town-meal-note">−1 meal</span></div>`:""}
-      ${endpointMeals.exitDinner?`<div class="box-row"><span>Dinner at exit trailhead</span><span class="town-meal-note">−1 meal</span></div>`:""}
-    </div>
-    <div class="buffer-row">
-      <span class="buffer-label">Trail buffer: <strong class="cushion-note">+${finalBuffer} meal${finalBuffer!==1?"s":""}</strong></span>
-      <div class="buffer-btns">${bufferBtnsHTML("final", finalBuffer)}</div>
-    </div>
-    <div class="box-total">
-      <div class="box-total-main"><span>${finalTotal} meals total</span><span>${Math.round(plan.finalBoxMiles*10)/10}mi</span></div>
-      <div class="box-total-note">${finalBase} calculated + ${finalBuffer} buffer</div>
-    </div>
-  </div>`;
-
-  html+=`<div class="action-bar">
-    <button class="btn-primary" onclick="openModal()">⬇ Download my plan (PDF)</button>
-    <button class="btn-secondary" onclick="openBookingModal()">Book this plan ↗</button>
-  </div>`;
-
-  el.innerHTML=html;
+  return {
+    en: en, ex: ex, sobo: sobo, startDate: startDate, endDate: endDate,
+    pace: pace, boxes: boxes, stops: stops,
+    finalTrailMiles: finalTrailMiles, finalTrailDays: finalTrailDays,
+    finalBoxMiles: finalBoxMiles, finalBase: finalBase,
+    finalBuffer: finalBuffer, finalTotal: finalTotal,
+    lastReturn: lastReturn, exitTrip: exitTrip, entryTrip: entryTrip,
+    totalTrueMiles: totalTrueMiles, totalDays: totalDays,
+    jmtMilesCovered: jmtMilesCovered, serviceFee: serviceFee,
+    warnings: warnings, prevBreakfastBoughtOnSite: prevBreakfastBoughtOnSite,
+    finalFromLabel: stops.length ? stops[stops.length-1].id : en.id,
+    finalFromName:  stops.length ? stops[stops.length-1].name : en.name
+  };
 }
 
-function openBookingModal(){
-  if(!currentPlan) return;
-  const p=currentPlan;
-  const deposit=Math.round(p.serviceFee/2);
-  const stopNames=p.boxes.map(b=>b.s.name).join(", ")||"None selected";
-  document.getElementById("modalContent").innerHTML=`
-    <h3>Booking — coming soon!</h3>
-    <p style="color:#166534;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;margin-bottom:1rem;font-size:12px">
-      Online booking is not yet live. To express interest or ask questions, email us at <strong>hello@onestoptrailshop.com</strong>
-    </p>
-    <p style="font-weight:500;font-size:13px;color:#111;margin-bottom:8px">Here's what your service would include:</p>
-    <div style="background:#f9fafb;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px">
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">${p.sobo?"SOBO":"NOBO"}: ${p.en.name} → ${p.ex.name}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">Start date</span><span style="color:#666">${fmt(p.startDate)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">Trip length</span><span style="color:#666">${p.totalDays} days</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">Resupply stops</span><span style="color:#666;text-align:right;max-width:55%">${stopNames}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">Service fee</span><span style="color:#111;font-weight:500">$${p.serviceFee}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">Food (est.)</span><span style="color:#666">Billed at cost</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#111">Shipping (est.)</span><span style="color:#666">Billed at cost</span></div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0 2px"><span style="color:#111;font-weight:500">Deposit due at booking</span><span style="color:#185FA5;font-weight:500">$${deposit}</span></div>
-    </div>
-    <p style="font-size:11px;color:#aaa;margin-bottom:1rem">Food and shipping are billed at exact cost — no markup. Balance due 3 weeks before your start date.</p>
-    <button class="btn-secondary" onclick="closeModal()" style="width:100%">Close</button>`;
-  document.getElementById("modalOverlay").style.display="flex";
+function bufBtns(key, current) {
+  var html = "";
+  for (var v = 0; v <= 3; v++) {
+    html += '<div class="buf-btn' + (current === v ? " active" : "") + '" onclick="setBuffer(\'' + key + '\',' + v + ')">' + v + '</div>';
+  }
+  return html;
 }
 
+function render() {
+  var el       = document.getElementById("results");
+  var startVal = document.getElementById("startDate").value;
 
-function openModal(){
-  if(!currentPlan) return;
-    <input type="email" id="modalEmail" placeholder="your@email.com">
-    <div class="modal-error" id="modalError">Please enter a valid email address.</div>
-    <div class="modal-actions">
-      <button class="btn-primary" onclick="submitEmail()">Download PDF</button>
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-    </div>`;
-  document.getElementById("modalOverlay").style.display="flex";
+  if (startVal && (startVal < SEASON_MIN || startVal > SEASON_MAX)) {
+    el.innerHTML = '<div class="season-warn">Please select a start date within the 2027 season: Jul 1 - Sep 15.</div>';
+    return;
+  }
+
+  var plan = computePlan();
+  currentPlan = plan;
+  if (!plan) { el.innerHTML = ""; return; }
+
+  var en = plan.en, ex = plan.ex, sobo = plan.sobo;
+  var html = "";
+
+  html += '<div class="start-banner"><strong>' + (sobo ? "SOBO" : "NOBO") + '</strong>: ' + en.name + ' to ' + ex.name + ' - ' + plan.jmtMilesCovered + ' JMT miles - ' + plan.totalTrueMiles + ' true miles</div>';
+  html += '<div class="summary">';
+  html += '<div class="metric"><div class="metric-label">JMT miles</div><div class="metric-value">' + plan.jmtMilesCovered + '</div><div class="metric-sub">trail only</div></div>';
+  html += '<div class="metric"><div class="metric-label">True miles</div><div class="metric-value">' + plan.totalTrueMiles + '</div><div class="metric-sub">all segments</div></div>';
+  html += '<div class="metric"><div class="metric-label">Trip length</div><div class="metric-value">' + plan.totalDays + ' days</div></div>';
+  html += '<div class="metric"><div class="metric-label">Finish date</div><div class="metric-value">' + fmtDate(plan.endDate) + '</div></div>';
+  html += '<div class="metric"><div class="metric-label">Service fee</div><div class="metric-value">$' + plan.serviceFee + '</div></div>';
+  html += '</div>';
+
+  for (var w = 0; w < plan.warnings.length; w++) {
+    html += '<div class="warn-banner">' + plan.warnings[w] + '</div>';
+  }
+
+  if (plan.entryTrip > 0) {
+    html += '<div class="leg-divider"><div class="leg-line"></div><div class="leg-label">Trailhead to JMT: ' + plan.entryTrip + 'mi - included in Box 1</div><div class="leg-line"></div></div>';
+  }
+
+  for (var i = 0; i < plan.boxes.length; i++) {
+    var b    = plan.boxes[i];
+    var warn = b.trailDays > MAX_TRAIL_DAYS;
+    html += '<div class="leg-divider"><div class="leg-line"></div><div class="leg-label' + (warn ? " warn" : "") + '">' + b.fromLabel + ' to ' + b.s.id + ': ' + b.trailDays + ' trail days - ' + b.trailMiles + 'mi' + (warn ? ' !' : '') + '</div><div class="leg-line"></div></div>';
+    html += '<div class="box-card' + (warn ? " warn-card" : "") + '">';
+    html += '<div class="box-header' + (warn ? " warn-header" : "") + '">';
+    html += '<div><div class="box-title">Box ' + (i+1) + ': ' + b.s.name + '</div><div style="font-size:12px;color:#666;margin-top:2px">Arrive Day ' + b.arrivalDay + ' - ' + fmtDate(b.arrivalDate) + '</div></div>';
+    html += '</div>';
+    html += '<div class="box-body">';
+    if (b.isFirst && plan.entryTrip > 0) {
+      html += '<div class="box-row"><span>Entry: ' + en.name + ' to JMT (' + plan.entryTrip + 'mi)</span><span>' + Math.ceil(plan.entryTrip/plan.pace) + ' day(s)</span></div>';
+    }
+    if (b.prevReturn > 0) {
+      html += '<div class="box-row"><span>Return from previous side trip (' + b.prevReturn + 'mi)</span><span>' + Math.ceil(b.prevReturn/plan.pace) + ' day(s)</span></div>';
+    }
+    html += '<div class="box-row"><span>Trail: ' + b.fromLabel + ' to ' + b.s.id + ' (' + b.trailMiles + 'mi)</span><span>' + b.trailDays + ' day(s)</span></div>';
+    if (b.st > 0) {
+      html += '<div class="box-row"><span>Outbound to ' + b.s.name + ' (' + b.st + 'mi)</span><span>' + Math.ceil(b.st/plan.pace) + ' day(s)</span></div>';
+    }
+    if (b.entryBreakfastDeducted) {
+      html += '<div class="box-row"><span>Breakfast at entry trailhead</span><span class="town-meal-note">-1 meal</span></div>';
+    }
+    if (!b.dinnerIn) {
+      html += '<div class="box-row"><span>Dinner at ' + b.s.name + ' - purchased on-site</span><span class="town-meal-note">-1 meal</span></div>';
+    }
+    if (b.prevBreakfastBoughtOnSite) {
+      html += '<div class="box-row"><span>Breakfast at ' + b.fromName + ' - purchased on-site</span><span class="town-meal-note">-1 meal</span></div>';
+    }
+    html += '</div>';
+    html += '<div class="buffer-row"><span class="buffer-label">Trail buffer: <strong class="cushion-note">+' + b.buffer + ' meal(s)</strong></span><div class="buffer-btns">' + bufBtns(b.bufKey, b.buffer) + '</div></div>';
+    html += '<div class="box-total"><div class="box-total-main"><span>' + b.totalMeals + ' meals total</span><span>' + b.boxMiles + 'mi</span></div><div class="box-total-note">' + b.baseMeals + ' calculated + ' + b.buffer + ' buffer</div></div>';
+    html += '</div>';
+  }
+
+  var finalWarn = plan.finalTrailDays > MAX_TRAIL_DAYS;
+  html += '<div class="leg-divider"><div class="leg-line"></div><div class="leg-label' + (finalWarn ? " warn" : "") + '">' + plan.finalFromLabel + ' to ' + ex.id + ': ' + plan.finalTrailDays + ' days - ' + Math.round((plan.finalTrailMiles + plan.exitTrip)*10)/10 + 'mi</div><div class="leg-line"></div></div>';
+  html += '<div class="box-card' + (finalWarn ? " warn-card" : "") + '">';
+  html += '<div class="box-header' + (finalWarn ? " warn-header" : "") + '"><div><div class="box-title">Final carry to ' + ex.name + '</div><div style="font-size:12px;color:#666;margin-top:2px">' + fmtDate(plan.endDate) + '</div></div></div>';
+  html += '<div class="box-body">';
+  if (plan.lastReturn > 0) {
+    html += '<div class="box-row"><span>Return from previous side trip (' + plan.lastReturn + 'mi)</span><span>' + Math.ceil(plan.lastReturn/plan.pace) + ' day(s)</span></div>';
+  }
+  if (plan.finalTrailMiles > 0) {
+    html += '<div class="box-row"><span>Trail to JMT exit junction (' + plan.finalTrailMiles + 'mi)</span><span>' + Math.ceil(plan.finalTrailMiles/plan.pace) + ' day(s)</span></div>';
+  }
+  if (plan.exitTrip > 0) {
+    html += '<div class="box-row"><span>Exit: JMT to ' + ex.name + ' (' + plan.exitTrip + 'mi)</span><span>' + Math.ceil(plan.exitTrip/plan.pace) + ' day(s)</span></div>';
+  }
+  if (plan.prevBreakfastBoughtOnSite) {
+    html += '<div class="box-row"><span>Breakfast at ' + plan.finalFromName + ' - purchased on-site</span><span class="town-meal-note">-1 meal</span></div>';
+  }
+  if (endpointMeals.exitDinner) {
+    html += '<div class="box-row"><span>Dinner at exit trailhead</span><span class="town-meal-note">-1 meal</span></div>';
+  }
+  html += '</div>';
+  html += '<div class="buffer-row"><span class="buffer-label">Trail buffer: <strong class="cushion-note">+' + plan.finalBuffer + ' meal(s)</strong></span><div class="buffer-btns">' + bufBtns("final", plan.finalBuffer) + '</div></div>';
+  html += '<div class="box-total"><div class="box-total-main"><span>' + plan.finalTotal + ' meals total</span><span>' + Math.round(plan.finalBoxMiles*10)/10 + 'mi</span></div><div class="box-total-note">' + plan.finalBase + ' calculated + ' + plan.finalBuffer + ' buffer</div></div>';
+  html += '</div>';
+
+  html += '<div class="action-bar">';
+  html += '<button class="btn-primary" onclick="openDownloadModal()">Download my plan (PDF)</button>';
+  html += '<button class="btn-secondary" onclick="openBookingModal()">Book this plan</button>';
+  html += '</div>';
+
+  el.innerHTML = html;
 }
 
-function closeModal(){ document.getElementById("modalOverlay").style.display="none"; }
+function openDownloadModal() {
+  if (!currentPlan) return;
+  document.getElementById("modalContent").innerHTML =
+    '<h3>Get your resupply plan</h3>' +
+    '<p>Enter your email to download a PDF summary of your plan.</p>' +
+    '<input type="email" id="modalEmail" placeholder="your@email.com">' +
+    '<div class="modal-error" id="modalError">Please enter a valid email address.</div>' +
+    '<div class="modal-actions">' +
+    '<button class="btn-primary" onclick="submitEmail()">Download PDF</button>' +
+    '<button class="btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '</div>';
+  document.getElementById("modalOverlay").style.display = "flex";
+}
 
-async function submitEmail(){
-  const email=document.getElementById("modalEmail").value.trim();
-  if(!email||!email.includes("@")){ document.getElementById("modalError").style.display="block"; return; }
-  document.getElementById("modalError").style.display="none";
-  const btn=document.querySelector("#modalContent .btn-primary");
-  btn.textContent="One moment..."; btn.disabled=true;
-  const p=currentPlan;
+function openBookingModal() {
+  if (!currentPlan) return;
+  var p = currentPlan;
+  var deposit = Math.round(p.serviceFee / 2);
+  var stopNames = p.boxes.map(function(b){ return b.s.name; }).join(", ") || "None selected";
+  document.getElementById("modalContent").innerHTML =
+    '<h3>Booking - coming soon!</h3>' +
+    '<p style="color:#166534;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;margin-bottom:1rem;font-size:12px">' +
+    'Online booking is not yet live. To express interest, email us at <strong>hello@onestoptrailshop.com</strong></p>' +
+    '<p style="font-weight:500;font-size:13px;color:#111;margin-bottom:8px">Here is what your service would include:</p>' +
+    '<div style="background:#f9fafb;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px">' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + (p.sobo?"SOBO":"NOBO") + ': ' + p.en.name + ' to ' + p.ex.name + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>Start date</span><span>' + fmtDate(p.startDate) + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>Trip length</span><span>' + p.totalDays + ' days</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>Resupply stops</span><span style="text-align:right;max-width:55%">' + stopNames + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>Service fee</span><span style="font-weight:500">$' + p.serviceFee + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>Food</span><span style="color:#666">Billed at exact cost</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>Shipping</span><span style="color:#666">Billed at exact cost</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:6px 0 2px"><span style="font-weight:500">Deposit due at booking</span><span style="color:#185FA5;font-weight:500">$' + deposit + '</span></div>' +
+    '</div>' +
+    '<p style="font-size:11px;color:#aaa;margin-bottom:1rem">Balance due 3 weeks before your start date.</p>' +
+    '<button class="btn-secondary" onclick="closeModal()" style="width:100%">Close</button>';
+  document.getElementById("modalOverlay").style.display = "flex";
+}
 
-  const boxBreakdown=p.boxes.map((b,i)=>[
-    `Box ${i+1}: ${b.s.name}`,
-    `  Arrive: Day ${b.arrivalDay} · ${fmt(b.arrivalDate)}`,
-    `  True miles this box: ${b.boxMiles}mi`,
-    `  Trail miles: ${b.trailMiles}mi`,
-    b.st>0?`  Side trip outbound: ${b.st}mi`:"",
-    b.prevReturn>0?`  Return from prev side trip: ${b.prevReturn}mi`:"",
-    b.entryBreakfastDeducted?"  −1 breakfast (eaten at trailhead)":"",
-    !b.dinnerIn?"  −1 dinner (purchased on-site)":"",
-    !b.breakfastIn?"  −1 breakfast (purchased on-site)":"",
-    `  Base meals (calculated): ${b.baseMeals}`,
-    `  Buffer selected by hiker: +${b.buffer}`,
-    `  Total meals packed: ${b.totalMeals}`,
-  ].filter(Boolean).join("\n")).join("\n\n");
+function closeModal() {
+  document.getElementById("modalOverlay").style.display = "none";
+}
 
-  const finalBox=[
-    `Final carry to ${p.ex.name}`,
-    `  True miles: ${Math.round(p.finalBoxMiles*10)/10}mi`,
-    p.lastReturn>0?`  Return from prev side trip: ${p.lastReturn}mi`:"",
-    p.finalTrailMiles>0?`  Trail miles: ${p.finalTrailMiles}mi`:"",
-    p.exitTrip>0?`  Exit to trailhead: ${p.exitTrip}mi`:"",
-    endpointMeals.exitDinner?"  −1 dinner (eaten at exit trailhead)":"",
-    `  Base meals (calculated): ${p.finalBase}`,
-    `  Buffer selected by hiker: +${p.finalBuffer}`,
-    `  Total meals packed: ${p.finalTotal}`,
-  ].filter(Boolean).join("\n");
+async function submitEmail() {
+  var email = document.getElementById("modalEmail").value.trim();
+  if (!email || !email.includes("@")) {
+    document.getElementById("modalError").style.display = "block";
+    return;
+  }
+  document.getElementById("modalError").style.display = "none";
+  var btn = document.querySelector("#modalContent .btn-primary");
+  btn.textContent = "One moment...";
+  btn.disabled = true;
 
-  const notificationBody=[
-    `=== NEW JMT RESUPPLY LEAD ===`,``,
-    `Email: ${email}`,`Submitted: ${fmt(new Date())}`,``,
-    `--- TRIP OVERVIEW ---`,
-    `Direction: ${p.sobo?"SOBO":"NOBO"}`,
-    `Route: ${p.en.name} → ${p.ex.name}`,
-    `Start date: ${fmt(p.startDate)}`,`Finish date: ${fmt(p.endDate)}`,
-    `Trip length: ${p.totalDays} days`,
-    `JMT miles: ${p.jmtMilesCovered}`,
-    `True miles: ${p.totalTrueMiles} (incl. all side trips)`,
-    `Daily pace: ${p.pace} mi/day`,
-    `Service fee estimate: $${p.serviceFee} (+ food + shipping at cost)`,
-    `Deposit due at booking: $${Math.round(p.serviceFee/2)}`,``,
-    `--- RESUPPLY STOPS ---`,
-    p.boxes.map(b=>b.s.name).join(", ")||"None",
-    `VVR access: ${vvrMode==="ferry"?"Ferry (1mi — TBD)":"Hike (4.5mi)"}`,``,
-    `--- BOX BREAKDOWN ---`,boxBreakdown,``,finalBox,``,
-    `--- WARNINGS ---`,p.warnings.length?p.warnings.map(w=>`⚠ ${w}`).join("\n"):"None",``,
-    `--- MEAL SETTINGS ---`,
-    `Breakfast at entry trailhead: ${endpointMeals.entryBreakfast?"Bought on-site (not in box)":"In box"}`,
-    `Dinner at exit trailhead: ${endpointMeals.exitDinner?"Bought on-site (not in box)":"In box"}`,
+  var p = currentPlan;
+  var boxBreakdown = p.boxes.map(function(b, i) {
+    var lines = ["Box " + (i+1) + ": " + b.s.name, "  Arrive: Day " + b.arrivalDay + " - " + fmtDate(b.arrivalDate), "  True miles: " + b.boxMiles + "mi", "  Base meals: " + b.baseMeals, "  Buffer: +" + b.buffer, "  Total: " + b.totalMeals];
+    return lines.join("\n");
+  }).join("\n\n");
+
+  var notificationBody = [
+    "=== NEW JMT RESUPPLY LEAD ===", "",
+    "Email: " + email, "Submitted: " + fmtDate(new Date()), "",
+    "--- TRIP OVERVIEW ---",
+    "Direction: " + (p.sobo?"SOBO":"NOBO"),
+    "Route: " + p.en.name + " to " + p.ex.name,
+    "Start: " + fmtDate(p.startDate), "Finish: " + fmtDate(p.endDate),
+    "Trip length: " + p.totalDays + " days",
+    "JMT miles: " + p.jmtMilesCovered,
+    "True miles: " + p.totalTrueMiles,
+    "Pace: " + p.pace + " mi/day",
+    "Service fee: $" + p.serviceFee,
+    "Deposit: $" + Math.round(p.serviceFee/2), "",
+    "--- BOX BREAKDOWN ---", boxBreakdown, "",
+    "Final carry to " + p.ex.name + ": " + p.finalTotal + " meals (" + p.finalBase + " calc + " + p.finalBuffer + " buffer)", "",
+    "--- WARNINGS ---", p.warnings.length ? p.warnings.join("\n") : "None"
   ].join("\n");
 
-  const requests=[];
-  if(CK_FORM_ID!=="YOUR_CK_FORM_ID_HERE"){
-    requests.push(fetch(`https://api.convertkit.com/v1/forms/${CK_FORM_ID}/subscribe`,{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({api_key:CK_API_KEY,email,
-        fields:{plan_summary:`${p.sobo?"SOBO":"NOBO"} · ${p.en.name} → ${p.ex.name} · ${p.totalDays} days · starts ${fmt(p.startDate)}`}})
-    }).catch(()=>{}));
+  var reqs = [];
+  if (CK_FORM_ID !== "YOUR_CK_FORM_ID_HERE") {
+    reqs.push(fetch("https://api.convertkit.com/v1/forms/" + CK_FORM_ID + "/subscribe", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({api_key: CK_API_KEY, email: email, fields: {plan_summary: (p.sobo?"SOBO":"NOBO") + " " + p.en.name + " to " + p.ex.name + " " + p.totalDays + " days"}})
+    }).catch(function(){}));
   }
-  if(FORMSPREE_URL!=="YOUR_FORMSPREE_URL_HERE"){
-    requests.push(fetch(FORMSPREE_URL,{
-      method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({
-        _subject:`New JMT resupply lead — ${p.sobo?"SOBO":"NOBO"} ${fmt(p.startDate)} · ${email}`,
-        email, plan:notificationBody
-      })
-    }).catch(()=>{}));
+  if (FORMSPREE_URL !== "YOUR_FORMSPREE_URL_HERE") {
+    reqs.push(fetch(FORMSPREE_URL, {
+      method: "POST", headers: {"Content-Type":"application/json","Accept":"application/json"},
+      body: JSON.stringify({_subject: "New JMT lead - " + (p.sobo?"SOBO":"NOBO") + " " + fmtDate(p.startDate) + " - " + email, email: email, plan: notificationBody})
+    }).catch(function(){}));
   }
-  await Promise.allSettled(requests);
-  document.getElementById("modalContent").innerHTML=`
-    <div style="text-align:center;padding:1rem 0">
-      <p style="color:#166534;font-weight:500;font-size:14px;margin-bottom:8px">✓ You're all set!</p>
-      <p style="color:#666;font-size:13px;margin-bottom:1rem">Your plan is downloading now.</p>
-      <button class="btn-secondary" onclick="closeModal()" style="width:100%">Close</button>
-    </div>`;
+  await Promise.allSettled(reqs);
+
+  document.getElementById("modalContent").innerHTML =
+    '<div style="text-align:center;padding:1rem 0">' +
+    '<p style="color:#166534;font-weight:500;font-size:14px;margin-bottom:8px">You are all set!</p>' +
+    '<p style="color:#666;font-size:13px;margin-bottom:1rem">Your plan is downloading now.</p>' +
+    '<button class="btn-secondary" onclick="closeModal()" style="width:100%">Close</button>' +
+    '</div>';
+
   generatePDF();
 }
 
-function generatePDF(){
-  if(!currentPlan) return;
-  const p=currentPlan;
-  const stopRows=p.boxes.map((b,i)=>`<tr style="background:${i%2===0?"#f8f9fa":"#fff"}"><td style="padding:8px 12px;font-weight:500">Box ${i+1}: ${b.s.name}</td><td style="padding:8px 12px">Day ${b.arrivalDay} · ${fmt(b.arrivalDate)}</td><td style="padding:8px 12px">${b.baseMeals} meals</td><td style="padding:8px 12px;color:#2563eb">+${b.buffer}</td><td style="padding:8px 12px;font-weight:500">${b.totalMeals} total</td></tr>`).join("");
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>JMT Resupply Plan — One Stop Trail Shop</title>
-  <style>body{font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;margin:0;padding:32px}h1{font-size:22px;color:#1a4a1a;margin-bottom:4px}.subtitle{font-size:13px;color:#666;margin-bottom:24px}.stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px}.stat-label{font-size:11px;color:#888;text-transform:uppercase}.stat-value{font-size:20px;font-weight:700;color:#1a4a1a}.stat-sub{font-size:11px;color:#aaa}.section{margin-bottom:24px}.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555;margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#1a4a1a;color:#fff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em}td{border-bottom:1px solid #eee}.final-row{background:#f0f7f0!important;font-weight:500}.footer{margin-top:32px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px}.logo{font-size:18px;font-weight:700;color:#1a4a1a}.note{font-size:11px;color:#888;margin-top:6px}</style>
-  </head><body>
-  <div class="logo">One Stop Trail Shop</div><h1>JMT Resupply Plan</h1>
-  <div class="subtitle">${p.sobo?"SOBO":"NOBO"}: ${p.en.name} → ${p.ex.name} · Generated ${fmt(new Date())}</div>
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Start date</div><div class="stat-value">${fmt(p.startDate)}</div></div>
-    <div class="stat"><div class="stat-label">Finish date</div><div class="stat-value">${fmt(p.endDate)}</div></div>
-    <div class="stat"><div class="stat-label">Trip length</div><div class="stat-value">${p.totalDays} days</div></div>
-    <div class="stat"><div class="stat-label">JMT miles</div><div class="stat-value">${p.jmtMilesCovered}</div><div class="stat-sub">trail only</div></div>
-    <div class="stat"><div class="stat-label">True miles</div><div class="stat-value">${p.totalTrueMiles}</div><div class="stat-sub">incl. side trips</div></div>
-    <div class="stat"><div class="stat-label">Daily pace</div><div class="stat-value">${p.pace} mi/day</div></div>
-    <div class="stat"><div class="stat-label">Service fee</div><div class="stat-value">$${p.serviceFee}</div><div class="stat-sub">+ food + shipping</div></div>
-  </div>
-  <div class="section"><div class="section-title">Resupply boxes</div>
-  <table><thead><tr><th>Box / Destination</th><th>Arrive</th><th>Calculated meals</th><th>Buffer</th><th>Total meals</th></tr></thead>
-  <tbody>${stopRows}
-  <tr class="final-row"><td style="padding:8px 12px">Final carry to ${p.ex.name}</td><td style="padding:8px 12px">${fmt(p.endDate)}</td><td style="padding:8px 12px">${p.finalBase}</td><td style="padding:8px 12px;color:#2563eb">+${p.finalBuffer}</td><td style="padding:8px 12px;font-weight:500">${p.finalTotal}</td></tr>
-  </tbody></table>
-  <div class="note">Calculated meals use half-day rounding (0.3–0.4 day = +1 meal, 0.5–0.7 day = +2 meals, 0.8+ day = full extra day). Buffer meals were chosen by you as extra insurance against slower days or weather.</div></div>
-  ${p.warnings.length?`<div class="section"><div class="section-title">⚠ Warnings</div>${p.warnings.map(w=>`<p style="color:#b35900;margin:4px 0">• ${w}</p>`).join("")}</div>`:""}
-  <div class="section"><div class="section-title">Next steps</div>
-  <p>1. Contact One Stop Trail Shop at <strong>onestoptrailshop.com</strong> to book your resupply service.</p>
-  <p>2. A 50% deposit ($${Math.round(p.serviceFee/2)}) is due at booking. Balance due 3 weeks before your start date.</p>
-  <p>3. Food and shipping are billed at exact cost — no markup. You receive all receipts.</p></div>
-  <div class="footer">Generated by One Stop Trail Shop Resupply Planner · onestoptrailshop.com</div>
-  </body></html>`;
-  const blob=new Blob([html],{type:"text/html"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a"); a.href=url; a.download="JMT_Resupply_Plan.html"; a.click();
+function generatePDF() {
+  if (!currentPlan) return;
+  var p = currentPlan;
+  var rows = "";
+  for (var i = 0; i < p.boxes.length; i++) {
+    var b = p.boxes[i];
+    rows += "<tr style='background:" + (i%2===0?"#f8f9fa":"#fff") + "'>";
+    rows += "<td style='padding:8px 12px;font-weight:500'>Box " + (i+1) + ": " + b.s.name + "</td>";
+    rows += "<td style='padding:8px 12px'>Day " + b.arrivalDay + " - " + fmtDate(b.arrivalDate) + "</td>";
+    rows += "<td style='padding:8px 12px'>" + b.baseMeals + "</td>";
+    rows += "<td style='padding:8px 12px;color:#2563eb'>+" + b.buffer + "</td>";
+    rows += "<td style='padding:8px 12px;font-weight:500'>" + b.totalMeals + "</td>";
+    rows += "</tr>";
+  }
+  rows += "<tr style='background:#f0f7f0;font-weight:500'>";
+  rows += "<td style='padding:8px 12px'>Final carry to " + p.ex.name + "</td>";
+  rows += "<td style='padding:8px 12px'>" + fmtDate(p.endDate) + "</td>";
+  rows += "<td style='padding:8px 12px'>" + p.finalBase + "</td>";
+  rows += "<td style='padding:8px 12px;color:#2563eb'>+" + p.finalBuffer + "</td>";
+  rows += "<td style='padding:8px 12px;font-weight:500'>" + p.finalTotal + "</td>";
+  rows += "</tr>";
+
+  var css = "body{font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;margin:0;padding:32px}h1{font-size:22px;color:#1a4a1a;margin-bottom:4px}.subtitle{font-size:13px;color:#666;margin-bottom:24px}.stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px}.stat-label{font-size:11px;color:#888;text-transform:uppercase}.stat-value{font-size:20px;font-weight:700;color:#1a4a1a}.stat-sub{font-size:11px;color:#aaa}.section{margin-bottom:24px}.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555;margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#1a4a1a;color:#fff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase}td{border-bottom:1px solid #eee}.footer{margin-top:32px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px}.logo{font-size:18px;font-weight:700;color:#1a4a1a}.note{font-size:11px;color:#888;margin-top:6px}";
+
+  var pdfHtml = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>JMT Resupply Plan</title><style>" + css + "</style></head><body>";
+  pdfHtml += "<div class='logo'>One Stop Trail Shop</div><h1>JMT Resupply Plan</h1>";
+  pdfHtml += "<div class='subtitle'>" + (p.sobo?"SOBO":"NOBO") + ": " + p.en.name + " to " + p.ex.name + " - Generated " + fmtDate(new Date()) + "</div>";
+  pdfHtml += "<div class='stats'>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>Start</div><div class='stat-value'>" + fmtDate(p.startDate) + "</div></div>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>Finish</div><div class='stat-value'>" + fmtDate(p.endDate) + "</div></div>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>Trip length</div><div class='stat-value'>" + p.totalDays + " days</div></div>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>JMT miles</div><div class='stat-value'>" + p.jmtMilesCovered + "</div><div class='stat-sub'>trail only</div></div>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>True miles</div><div class='stat-value'>" + p.totalTrueMiles + "</div><div class='stat-sub'>incl. side trips</div></div>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>Pace</div><div class='stat-value'>" + p.pace + " mi/day</div></div>";
+  pdfHtml += "<div class='stat'><div class='stat-label'>Service fee</div><div class='stat-value'>$" + p.serviceFee + "</div><div class='stat-sub'>+ food + shipping</div></div>";
+  pdfHtml += "</div>";
+  pdfHtml += "<div class='section'><div class='section-title'>Resupply boxes</div>";
+  pdfHtml += "<table><thead><tr><th>Box / Destination</th><th>Arrive</th><th>Calculated meals</th><th>Buffer</th><th>Total meals</th></tr></thead><tbody>" + rows + "</tbody></table>";
+  pdfHtml += "<div class='note'>Meals use half-day rounding. Buffer meals are extra insurance for slower days or weather.</div></div>";
+  if (p.warnings.length) {
+    pdfHtml += "<div class='section'><div class='section-title'>Warnings</div>";
+    for (var w = 0; w < p.warnings.length; w++) {
+      pdfHtml += "<p style='color:#b35900;margin:4px 0'>" + p.warnings[w] + "</p>";
+    }
+    pdfHtml += "</div>";
+  }
+  pdfHtml += "<div class='section'><div class='section-title'>Next steps</div>";
+  pdfHtml += "<p>1. Contact One Stop Trail Shop at onestoptrailshop.com to book your resupply service.</p>";
+  pdfHtml += "<p>2. A 50% deposit ($" + Math.round(p.serviceFee/2) + ") is due at booking. Balance due 3 weeks before your start date.</p>";
+  pdfHtml += "<p>3. Food and shipping are billed at exact cost - no markup. You receive all receipts.</p></div>";
+  pdfHtml += "<div class='footer'>Generated by One Stop Trail Shop Resupply Planner - onestoptrailshop.com</div>";
+  pdfHtml += "<" + "/body><" + "/html>";
+
+  var blob = new Blob([pdfHtml], {type:"text/html"});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href   = url;
+  a.download = "JMT_Resupply_Plan.html";
+  a.click();
   URL.revokeObjectURL(url);
 }
 
-try {
-  document.getElementById("startDate").addEventListener("change", render);
-  document.getElementById("pace").addEventListener("change", render);
-  document.getElementById("modalOverlay").addEventListener("click",e=>{ if(e.target===document.getElementById("modalOverlay")) closeModal(); });
-  populateSelectors();
-  document.getElementById("toggles").innerHTML='<p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p>';
-  document.getElementById("results").innerHTML='';
-} catch(e){ console.error("Init error:",e); }
+document.getElementById("entry").addEventListener("change", onRouteChange);
+document.getElementById("exit").addEventListener("change", onRouteChange);
+document.getElementById("startDate").addEventListener("change", render);
+document.getElementById("pace").addEventListener("change", render);
+document.getElementById("modalOverlay").addEventListener("click", function(e) {
+  if (e.target === document.getElementById("modalOverlay")) closeModal();
+});
+
+populateSelectors();
 </script>
-</body></html>
+</body>
+</html>
