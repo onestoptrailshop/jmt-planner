@@ -207,10 +207,17 @@ let currentPlan = null;
 
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
 function fmt(d){ return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
-function getSideTrip(s){ return s.id==="VVR"?(vvrMode==="ferry"?s.vvrFerry:s.vvrHike):s.sideTrip; }
+function getSideTrip(s){
+  if(s.id==="VVR") return vvrMode==="ferry" ? s.vvrFerry : s.vvrHike;
+  return s.sideTrip || 0;
+}
 function getEntry(){ const v=document.getElementById("entry").value; return v?TRAILHEADS.find(t=>t.id===v):null; }
 function getExit(){  const v=document.getElementById("exit").value;  return v?TRAILHEADS.find(t=>t.id===v):null; }
-function isSOBO(){ const en=getEntry(),ex=getExit(); if(!en||!ex) return true; return en.soboMile<=ex.soboMile; }
+function isSOBO(){
+  const en=getEntry(),ex=getExit();
+  if(!en||!ex) return true;
+  return en.soboMile<=ex.soboMile;
+}
 function getJmtMile(s){ return isSOBO()?s.soboMile:s.noboMile; }
 
 function populateSelectors(){
@@ -221,7 +228,10 @@ function populateSelectors(){
   document.getElementById("exit").innerHTML=blankExit+sorted.map(t=>`<option value="${t.id}">${t.name}${t.sideTrip>0?` (+${t.sideTrip}mi exit from JMT)`:""}</option>`).join("");
 }
 
-function onRouteChange(){ buildToggles(); render(); }
+function onRouteChange(){
+  try { buildToggles(); } catch(e){ console.error("buildToggles error:",e); }
+  try { render(); } catch(e){ console.error("render error:",e); }
+}
 
 function toggleEndpointMeal(key){
   endpointMeals[key]=!endpointMeals[key];
@@ -230,13 +240,16 @@ function toggleEndpointMeal(key){
 }
 
 function getActiveStops(){
-  const en=getEntry(),ex=getExit(); if(!en||!ex) return [];
+  const en=getEntry(),ex=getExit();
+  if(!en||!ex||en.id===ex.id) return [];
   const sobo=isSOBO();
-  const lo=Math.min(sobo?en.soboMile:en.noboMile, sobo?ex.soboMile:ex.noboMile);
-  const hi=Math.max(sobo?en.soboMile:en.noboMile, sobo?ex.soboMile:ex.noboMile);
+  const enMile=sobo?en.soboMile:en.noboMile;
+  const exMile=sobo?ex.soboMile:ex.noboMile;
+  const lo=Math.min(enMile,exMile);
+  const hi=Math.max(enMile,exMile);
   return RESUPPLY
     .filter(s=>{ const m=sobo?s.soboMile:s.noboMile; return m>lo&&m<hi; })
-    .sort((a,b)=>isSOBO()?a.soboMile-b.soboMile:a.noboMile-b.noboMile);
+    .sort((a,b)=>sobo?a.soboMile-b.soboMile:a.noboMile-b.noboMile);
 }
 
 function buildToggles(){
@@ -499,10 +512,8 @@ function openBookingModal(){
 }
 
 
+function openModal(){
   if(!currentPlan) return;
-  document.getElementById("modalContent").innerHTML=`
-    <h3>Get your resupply plan</h3>
-    <p>Enter your email to download a PDF summary of your plan.</p>
     <input type="email" id="modalEmail" placeholder="your@email.com">
     <div class="modal-error" id="modalError">Please enter a valid email address.</div>
     <div class="modal-actions">
@@ -636,11 +647,13 @@ function generatePDF(){
   URL.revokeObjectURL(url);
 }
 
-document.getElementById("startDate").addEventListener("change", render);
-document.getElementById("pace").addEventListener("change", render);
-document.getElementById("modalOverlay").addEventListener("click",e=>{ if(e.target===document.getElementById("modalOverlay")) closeModal(); });
-populateSelectors();
-document.getElementById("toggles").innerHTML='<p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p>';
-document.getElementById("results").innerHTML='';
+try {
+  document.getElementById("startDate").addEventListener("change", render);
+  document.getElementById("pace").addEventListener("change", render);
+  document.getElementById("modalOverlay").addEventListener("click",e=>{ if(e.target===document.getElementById("modalOverlay")) closeModal(); });
+  populateSelectors();
+  document.getElementById("toggles").innerHTML='<p style="color:#aaa;font-size:13px;font-style:italic">Select entry and exit trailheads to see available resupply stops.</p>';
+  document.getElementById("results").innerHTML='';
+} catch(e){ console.error("Init error:",e); }
 </script>
 </body></html>
